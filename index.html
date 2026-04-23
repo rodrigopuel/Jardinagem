@@ -102,8 +102,9 @@ input, select, textarea { font-family: sans-serif; }
 .schedule-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 12px; overflow: hidden; }
 .schedule-header { display: flex; align-items: center; gap: 12px; padding: 15px 16px; }
 .schedule-type-badge { font-size: 10px; font-family: sans-serif; padding: 3px 8px; border-radius: 20px; font-weight: 600; }
-.schedule-type-badge.water { background: #1E3A5F; color: var(--blue); }
-.schedule-type-badge.defense { background: #2D1B1B; color: var(--rose); }
+.schedule-type-badge.water      { background: #1E3A5F; color: var(--blue); }
+.schedule-type-badge.defense    { background: #2D1B1B; color: var(--rose); }
+.schedule-type-badge.fertilizer { background: #1A2D0F; color: var(--lime); }
 .schedule-info { flex: 1; }
 .schedule-name { font-size: 14px; font-family: sans-serif; color: var(--text); }
 .schedule-desc { font-size: 11px; color: var(--muted); font-family: sans-serif; margin-top: 2px; }
@@ -365,11 +366,12 @@ input, select, textarea { font-family: sans-serif; }
       <select id="ms-type" class="form-select form-input" onchange="scheduleTypeChange()">
         <option value="water">💧 Rega</option>
         <option value="defense">🧪 Defensivo</option>
+        <option value="fertilizer">🌱 Adubação</option>
       </select>
     </div>
     <div class="form-group" id="ms-product-wrap" style="display:none">
-      <label class="form-label">Produto / receita</label>
-      <input id="ms-product" class="form-input" placeholder="Ex: Calda bordalesa 2%" maxlength="60">
+      <label class="form-label" id="ms-product-label">Produto / receita</label>
+      <input id="ms-product" class="form-input" id="ms-product" placeholder="Ex: Calda bordalesa 2%" maxlength="60">
     </div>
 
     <!-- 3. Dias da semana -->
@@ -425,6 +427,9 @@ let schedules = []; // {id, groupId, type, product, days[], interval, startDate}
 let pests     = []; // {id, name, icon, symptom, recipe, plants}
 let checklist = {}; // { "YYYY-MM-DD": { scheduleId: bool } }
 let history   = []; // [{id, date, scheduleId, groupId, type, product, groupName}]
+
+function typeIcon(type)  { return type==="water"?"💧":type==="fertilizer"?"🌱":"🧪"; }
+function typeLabel(type) { return type==="water"?"Rega":type==="fertilizer"?"Adubação":"Defensivo"; }
 
 const GROUP_COLORS = ["#4ADE80","#A3E635","#2DD4BF","#60A5FA","#C084FC","#FB923C","#F472B6","#FCD34D","#34D399","#F87171"];
 const PLANT_EMOJIS = ["🌿","🌱","🍃","🌳","🌲","🪴","🌵","🌾","🍀","🌺","🌸","🌻","🌹","🍎","🍊","🍋","🍇","🍓","🍌","🫐"];
@@ -545,8 +550,9 @@ function renderHoje() {
   const dateStr = `${daysNames[today.getDay()]}, ${today.getDate()} ${months[today.getMonth()]}`;
 
   const dueTasks = schedules.filter(s => isDueToday(s));
-  const waterTasks   = dueTasks.filter(s => s.type==="water");
-  const defenseTasks = dueTasks.filter(s => s.type==="defense");
+  const waterTasks      = dueTasks.filter(s => s.type==="water");
+  const defenseTasks    = dueTasks.filter(s => s.type==="defense");
+  const fertilizerTasks = dueTasks.filter(s => s.type==="fertilizer");
   const doneCount = dueTasks.filter(s => isChecked(s.id)).length;
   const totalCount = dueTasks.length;
 
@@ -570,8 +576,9 @@ function renderHoje() {
   let html = `
     <div style="margin-bottom:6px"><div class="today-date">${dateStr}</div></div>
     <div class="today-summary">
-      <div class="summary-pill"><div class="sp-num" style="color:var(--blue)">${waterTasks.length}</div><div class="sp-label">Regas</div></div>
-      <div class="summary-pill"><div class="sp-num" style="color:var(--rose)">${defenseTasks.length}</div><div class="sp-label">Defensivos</div></div>
+      <div class="summary-pill"><div class="sp-num" style="color:var(--blue)">${waterTasks.length}</div><div class="sp-label">💧 Regas</div></div>
+      <div class="summary-pill"><div class="sp-num" style="color:var(--rose)">${defenseTasks.length}</div><div class="sp-label">🧪 Defensivos</div></div>
+      <div class="summary-pill"><div class="sp-num" style="color:var(--lime)">${fertilizerTasks.length}</div><div class="sp-label">🌱 Adubações</div></div>
       <div class="summary-pill"><div class="sp-num" style="color:${pendCount===0?"var(--green)":"var(--amber)"}">${pendCount}</div><div class="sp-label">Pendentes</div></div>
     </div>`;
 
@@ -590,8 +597,16 @@ function renderHoje() {
     html += `<div class="task-section-title"><span class="tst-icon">🧪</span><span class="tst-label">Defensivos</span><span class="tst-count">${dDone}/${defenseTasks.length}</span></div>`;
     defenseTasks.forEach(s => {
       const g = groups.find(x=>x.id===s.groupId);
-      const done = isChecked(s.id);
-      html += taskRow(s, g, done);
+      html += taskRow(s, g, isChecked(s.id));
+    });
+  }
+
+  if(fertilizerTasks.length) {
+    const fDone = fertilizerTasks.filter(s=>isChecked(s.id)).length;
+    html += `<div class="task-section-title"><span class="tst-icon">🌱</span><span class="tst-label">Adubações</span><span class="tst-count">${fDone}/${fertilizerTasks.length}</span></div>`;
+    fertilizerTasks.forEach(s => {
+      const g = groups.find(x=>x.id===s.groupId);
+      html += taskRow(s, g, isChecked(s.id));
     });
   }
 
@@ -605,12 +620,12 @@ function renderHoje() {
 function taskRow(s, g, done) {
   const color = g ? g.color : "var(--green)";
   const checkStyle = done ? `border-color:${color};background:${color};color:#0A1008` : `border-color:var(--border2)`;
-  const product = s.product ? `<div class="task-freq">${s.product}</div>` : "";
+  const product = s.product ? ` · ${s.product}` : "";
   return `<div class="task-row${done?" done":""}" onclick="toggleCheck('${s.id}')">
     <div class="task-check" style="${checkStyle}">${done?"✓":""}</div>
     <div style="flex:1">
       <div class="task-name">${g ? g.name : "Grupo"}</div>
-      <div class="task-group-badge">${s.type==="water"?"💧 Rega":"🧪 Defensivo"}${product?" · "+s.product:""}</div>
+      <div class="task-group-badge">${typeIcon(s.type)} ${typeLabel(s.type)}${product}</div>
     </div>
     ${g ? `<div style="width:10px;height:10px;border-radius:50%;background:${g.color};flex-shrink:0"></div>` : ""}
   </div>`;
@@ -673,7 +688,7 @@ function renderAgenda() {
         const activeDots = dayNames.map((d,i) => `<div class="wd-dot${s.days.includes(i)?" active":""}">${d}</div>`).join("");
         html += `<div class="schedule-card">
           <div class="schedule-header">
-            <span class="schedule-type-badge ${s.type}">${s.type==="water"?"💧 Rega":"🧪 Defensivo"}</span>
+            <span class="schedule-type-badge ${s.type}">${typeIcon(s.type)} ${typeLabel(s.type)}</span>
             <div class="schedule-info">
               <div class="schedule-name">${s.product || (s.type==="water"?"Rega padrão":"Defensivo")}</div>
               <div class="schedule-desc">${freqDesc}</div>
@@ -743,15 +758,17 @@ function renderHistorico() {
   }).sort((a,b) => b.date.localeCompare(a.date));
 
   // Stats
-  const totalWater   = history.filter(h=>h.type==="water").length;
-  const totalDefense = history.filter(h=>h.type==="defense").length;
+  const totalWater      = history.filter(h=>h.type==="water").length;
+  const totalDefense    = history.filter(h=>h.type==="defense").length;
+  const totalFertilizer = history.filter(h=>h.type==="fertilizer").length;
 
   // Filter bar
   const groupFilters = [{ id:"all", name:"Todos" }, ...groups.map(g=>({id:g.id, name:g.name}))];
   const typeFilters  = [
-    { id:"all",     label:"Todos" },
-    { id:"water",   label:"💧 Regas" },
-    { id:"defense", label:"🧪 Defensivos" },
+    { id:"all",        label:"Todos" },
+    { id:"water",      label:"💧 Regas" },
+    { id:"defense",    label:"🧪 Defensivos" },
+    { id:"fertilizer", label:"🌱 Adubações" },
   ];
 
   let filterHtml = typeFilters.map(f =>
@@ -769,7 +786,17 @@ function renderHistorico() {
       </div>
       <div class="hist-stat-card">
         <div class="hist-stat-num" style="color:var(--rose)">${totalDefense}</div>
-        <div class="hist-stat-label">🧪 Defensivos aplicados</div>
+        <div class="hist-stat-label">🧪 Defensivos</div>
+      </div>
+    </div>
+    <div class="hist-stats" style="margin-top:-4px">
+      <div class="hist-stat-card">
+        <div class="hist-stat-num" style="color:var(--lime)">${totalFertilizer}</div>
+        <div class="hist-stat-label">🌱 Adubações</div>
+      </div>
+      <div class="hist-stat-card">
+        <div class="hist-stat-num" style="color:var(--green)">${totalWater+totalDefense+totalFertilizer}</div>
+        <div class="hist-stat-label">Total de registros</div>
       </div>
     </div>`;
 
@@ -797,16 +824,14 @@ function renderHistorico() {
     const label = isToday ? "Hoje" : `${dayNames[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]}`;
     listHtml += `<div class="hist-day-block"><div class="hist-day-label">${label}</div>`;
     byDate[date].forEach(h => {
-      const typeIcon  = h.type==="water" ? "💧" : "🧪";
-      const typeLabel = h.type==="water" ? "Rega" : "Defensivo";
-      const subText   = h.product ? `${typeLabel} · ${h.product}` : typeLabel;
+      const subText   = h.product ? `${typeLabel(h.type)} · ${h.product}` : typeLabel(h.type);
       listHtml += `<div class="hist-entry">
         <div class="hist-entry-dot" style="background:${h.groupColor||"#4ADE80"}"></div>
         <div class="hist-entry-info">
           <div class="hist-entry-name">${h.groupName}</div>
-          <div class="hist-entry-sub">${typeIcon} ${subText}</div>
+          <div class="hist-entry-sub">${typeIcon(h.type)} ${subText}</div>
         </div>
-        <div class="hist-entry-type" style="color:${h.type==="water"?"var(--blue)":"var(--rose)"}">${typeIcon}</div>
+        <div class="hist-entry-type" style="color:${h.type==="water"?"var(--blue)":h.type==="fertilizer"?"var(--lime)":"var(--rose)"}">${typeIcon(h.type)}</div>
       </div>`;
     });
     listHtml += `</div>`;
@@ -1013,8 +1038,9 @@ function buildDayDetail(dateKey, dayNames, monthsShort) {
     const g = groups.find(x=>x.id===s.groupId);
     const col = g?.color || "#4ADE80";
     const isDone = !!(checklist[dateKey]?.[s.id]);
-    const typeIcon = s.type==="water"?"💧":"🧪";
-    const product  = s.product ? ` · ${s.product}` : "";
+    const tIcon   = typeIcon(s.type);
+    const tLabel  = typeLabel(s.type);
+    const product = s.product ? ` · ${s.product}` : "";
 
     let checkEl, nameStyle, clickable;
     if(isFuture) {
@@ -1035,7 +1061,7 @@ function buildDayDetail(dateKey, dayNames, monthsShort) {
       ${checkEl}
       <div style="flex:1">
         <div class="cal-task-name" style="${nameStyle}">${g?.name || "Grupo"}</div>
-        <div class="cal-task-sub">${typeIcon} ${s.type==="water"?"Rega":"Defensivo"}${product}</div>
+        <div class="cal-task-sub">${tIcon} ${tLabel}${product}</div>
       </div>
       ${!isFuture ? `<div style="font-size:11px;color:var(--muted);font-family:sans-serif">${isDone?"feito":"marcar"}</div>` : ""}
     </div>`;
@@ -1199,7 +1225,14 @@ let editingScheduleId = null;
 
 function scheduleTypeChange() {
   const type = document.getElementById("ms-type").value;
-  document.getElementById("ms-product-wrap").style.display = type==="defense"?"block":"none";
+  const showProduct = type === "defense" || type === "fertilizer";
+  document.getElementById("ms-product-wrap").style.display = showProduct ? "block" : "none";
+  const labels = { defense: "Produto / receita defensiva", fertilizer: "Adubo / formulação" };
+  const placeholders = { defense: "Ex: Calda bordalesa 2%", fertilizer: "Ex: NPK 10-10-10, húmus de minhoca..." };
+  if(showProduct) {
+    document.getElementById("ms-product-label").textContent = labels[type] || "Produto";
+    document.getElementById("ms-product").placeholder = placeholders[type] || "";
+  }
 }
 
 function updateIntervalHint() {
