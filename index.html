@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Jardim">
+<meta name="theme-color" content="#0A1008">
+<title>Jardim · Rodrigo</title>
+<style>
+:root {
+  --bg:      #0A1008;
+  --bg2:     #0F160D;
+  --bg3:     #141E11;
+  --border:  #1E2E1A;
+  --border2: #263322;
+  --text:    #D9E8D4;
+  --muted:   #6B7D65;
+  --muted2:  #4A5847;
+  --green:   #4ADE80;
+  --lime:    #A3E635;
+  --teal:    #2DD4BF;
+  --amber:   #FCD34D;
+  --rose:    #FB7185;
+  --blue:    #60A5FA;
+  --purple:  #C084FC;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { background: var(--bg); color: var(--text); font-family: 'Georgia', serif; min-height: 100vh; max-width: 480px; margin: 0 auto; padding: 0 0 84px; overflow-x: hidden; }
+button { cursor: pointer; font-family: Georgia, serif; }
+input, select, textarea { font-family: sans-serif; }
+
+/* ── HEADER ── */
+#header { padding: 50px 18px 0; display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 22px; }
+.header-left .eyebrow { color: var(--muted); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; font-family: sans-serif; margin-bottom: 3px; }
+.header-left h1 { font-size: 26px; font-weight: normal; letter-spacing: -0.5px; color: var(--text); }
+#hamburger-btn { background: none; border: none; padding: 4px 0 4px 8px; display: flex; flex-direction: column; gap: 5px; align-items: flex-end; margin-top: 8px; }
+#hamburger-btn span { display: block; height: 2px; background: var(--muted); border-radius: 2px; }
+#hamburger-btn span:nth-child(1) { width: 22px; }
+#hamburger-btn span:nth-child(2) { width: 15px; }
+#hamburger-btn span:nth-child(3) { width: 22px; }
+
+/* ── NAV ── */
+#nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #0D140B; border-top: 1px solid var(--border); display: flex; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
+.nav-btn { flex: 1; padding: 11px 4px 9px; background: none; border: none; color: var(--muted2); font-size: 10px; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: color 0.15s; font-family: sans-serif; }
+.nav-btn.active { color: var(--green); }
+.nav-btn .nav-icon { font-size: 19px; line-height: 1; }
+
+/* ── VIEWS ── */
+.view { display: none; padding: 0 18px; }
+.view.active { display: block; }
+.sec-label { font-size: 10px; color: var(--muted); font-family: sans-serif; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+
+/* ── CARDS ── */
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+.card-sm { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 13px 14px; margin-bottom: 8px; }
+
+/* ── TODAY VIEW ── */
+.today-date { font-size: 20px; letter-spacing: -0.3px; margin-bottom: 2px; }
+.today-sub { font-size: 13px; color: var(--muted); font-family: sans-serif; }
+.today-summary { display: flex; gap: 10px; margin: 16px 0; }
+.summary-pill { flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; padding: 12px; text-align: center; }
+.summary-pill .sp-num { font-size: 26px; letter-spacing: -1px; }
+.summary-pill .sp-label { font-size: 10px; color: var(--muted); font-family: sans-serif; margin-top: 2px; }
+
+.task-section-title { display: flex; align-items: center; gap: 8px; margin: 18px 0 10px; }
+.task-section-title .tst-icon { font-size: 16px; }
+.task-section-title .tst-label { font-size: 13px; font-family: sans-serif; color: var(--text); font-weight: 600; }
+.task-section-title .tst-count { font-size: 11px; color: var(--muted); font-family: sans-serif; margin-left: auto; }
+
+.task-row { display: flex; align-items: center; gap: 12px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 13px 14px; margin-bottom: 8px; cursor: pointer; transition: all 0.18s; user-select: none; -webkit-user-select: none; }
+.task-row.done { opacity: 0.5; }
+.task-row.done .task-name { text-decoration: line-through; color: var(--muted); }
+.task-check { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border2); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; transition: all 0.15s; }
+.task-group-badge { font-size: 10px; font-family: sans-serif; color: var(--muted); margin-top: 2px; }
+.task-name { font-size: 14px; font-family: sans-serif; color: var(--text); }
+.task-freq { font-size: 11px; color: var(--muted); font-family: sans-serif; }
+
+/* ── GROUPS VIEW ── */
+.group-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 12px; overflow: hidden; }
+.group-header { display: flex; align-items: center; gap: 12px; padding: 15px 16px; cursor: pointer; }
+.group-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.group-name { font-size: 15px; font-family: sans-serif; flex: 1; }
+.group-count { font-size: 11px; color: var(--muted); font-family: sans-serif; }
+.group-chevron { color: var(--muted2); font-size: 14px; transition: transform 0.2s; }
+.group-card.open .group-chevron { transform: rotate(90deg); }
+.group-plants { display: none; border-top: 1px solid var(--border); }
+.group-card.open .group-plants { display: block; }
+.plant-row { display: flex; align-items: center; gap: 10px; padding: 11px 16px; border-bottom: 1px solid var(--bg3); }
+.plant-row:last-child { border-bottom: none; }
+.plant-icon { font-size: 18px; }
+.plant-name { font-size: 13px; font-family: sans-serif; flex: 1; color: var(--text); }
+.plant-edit-btn { background: var(--bg3); border: 1px solid var(--border2); border-radius: 7px; padding: 5px 10px; font-size: 12px; color: var(--muted); font-family: sans-serif; }
+.group-add-plant { display: flex; align-items: center; gap: 8px; padding: 11px 16px; cursor: pointer; color: var(--muted); font-size: 13px; font-family: sans-serif; }
+.group-add-plant:active { background: var(--bg3); }
+
+.add-group-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 14px; background: var(--bg3); border: 1px dashed var(--border2); border-radius: 14px; color: var(--muted); font-size: 14px; font-family: sans-serif; margin-top: 4px; }
+.add-group-btn:active { background: var(--bg2); }
+
+/* ── SCHEDULE VIEW ── */
+.schedule-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 12px; overflow: hidden; }
+.schedule-header { display: flex; align-items: center; gap: 12px; padding: 15px 16px; }
+.schedule-type-badge { font-size: 10px; font-family: sans-serif; padding: 3px 8px; border-radius: 20px; font-weight: 600; }
+.schedule-type-badge.water { background: #1E3A5F; color: var(--blue); }
+.schedule-type-badge.defense { background: #2D1B1B; color: var(--rose); }
+.schedule-info { flex: 1; }
+.schedule-name { font-size: 14px; font-family: sans-serif; color: var(--text); }
+.schedule-desc { font-size: 11px; color: var(--muted); font-family: sans-serif; margin-top: 2px; }
+.schedule-edit-btn { background: var(--bg3); border: 1px solid var(--border2); border-radius: 7px; padding: 5px 10px; font-size: 12px; color: var(--muted); font-family: sans-serif; }
+.weekday-dots { display: flex; gap: 5px; padding: 0 16px 14px; }
+.wd-dot { width: 28px; height: 28px; border-radius: 50%; background: var(--bg3); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; font-family: sans-serif; color: var(--muted); }
+.wd-dot.active { background: var(--green); border-color: var(--green); color: #0A1008; font-weight: 700; }
+
+/* ── PEST VIEW ── */
+.pest-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 12px; overflow: hidden; cursor: pointer; }
+.pest-header { display: flex; align-items: center; gap: 12px; padding: 15px 16px; }
+.pest-icon-wrap { width: 40px; height: 40px; border-radius: 10px; background: var(--bg3); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.pest-name { font-size: 15px; font-family: sans-serif; color: var(--text); }
+.pest-symptom { font-size: 12px; color: var(--muted); font-family: sans-serif; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; }
+.pest-body { display: none; border-top: 1px solid var(--border); padding: 14px 16px; }
+.pest-card.open .pest-body { display: block; }
+.pest-section { margin-bottom: 12px; }
+.pest-section-label { font-size: 10px; color: var(--muted); font-family: sans-serif; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
+.pest-section-text { font-size: 13px; font-family: sans-serif; color: var(--text); line-height: 1.6; }
+.pest-plants-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.pest-plant-tag { background: var(--bg3); border: 1px solid var(--border2); border-radius: 20px; padding: 4px 10px; font-size: 11px; font-family: sans-serif; color: var(--muted); }
+.pest-actions { display: flex; gap: 8px; margin-top: 12px; }
+.pest-action-btn { flex: 1; padding: 9px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 9px; font-size: 12px; color: var(--muted); font-family: sans-serif; }
+.pest-action-btn.del { color: var(--rose); border-color: #3D1515; }
+
+/* ── DRAWER ── */
+#drawer-overlay { display: none; position: fixed; inset: 0; background: #0009; z-index: 400; }
+#drawer-overlay.open { display: block; }
+#drawer { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: #0D140B; border-left: 1px solid var(--border); z-index: 500; transition: right 0.25s cubic-bezier(.4,0,.2,1); padding: env(safe-area-inset-top, 44px) 0 40px; display: flex; flex-direction: column; }
+#drawer.open { right: 0; }
+.drawer-header { padding: 20px 22px 16px; border-bottom: 1px solid var(--border); }
+.drawer-title { font-size: 13px; color: var(--muted); font-family: sans-serif; letter-spacing: 2px; text-transform: uppercase; }
+.drawer-item { display: flex; align-items: center; gap: 14px; padding: 15px 22px; cursor: pointer; border: none; border-bottom: 1px solid var(--bg3); background: none; width: 100%; text-align: left; color: var(--text); transition: background 0.15s; }
+.drawer-item:active { background: var(--bg3); }
+.drawer-item .di-icon { font-size: 19px; width: 26px; text-align: center; }
+.drawer-item .di-text { font-size: 14px; font-family: sans-serif; }
+.drawer-item .di-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+/* ── MODALS ── */
+.modal-overlay { display: none; position: fixed; inset: 0; background: #000b; z-index: 600; align-items: flex-end; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal-sheet { background: #0D140B; border: 1px solid var(--border2); border-radius: 22px 22px 0 0; padding: 26px 20px 40px; width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto; }
+.modal-title { font-size: 18px; margin-bottom: 5px; }
+.modal-sub { font-size: 13px; color: var(--muted); font-family: sans-serif; margin-bottom: 20px; line-height: 1.5; }
+
+/* ── FORM ── */
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 10px; color: var(--muted); font-family: sans-serif; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; display: block; }
+.form-input { width: 100%; padding: 12px 14px; background: var(--bg); border: 1px solid var(--border2); border-radius: 10px; color: var(--text); font-size: 15px; font-family: sans-serif; outline: none; }
+.form-input:focus { border-color: var(--green); }
+.form-textarea { width: 100%; padding: 12px 14px; background: var(--bg); border: 1px solid var(--border2); border-radius: 10px; color: var(--text); font-size: 14px; font-family: sans-serif; outline: none; resize: vertical; min-height: 80px; line-height: 1.5; }
+.form-textarea:focus { border-color: var(--green); }
+.form-row { display: flex; gap: 10px; }
+.form-row .form-group { flex: 1; }
+.form-select { width: 100%; padding: 12px 14px; background: var(--bg); border: 1px solid var(--border2); border-radius: 10px; color: var(--text); font-size: 15px; outline: none; appearance: none; }
+
+/* Weekday picker */
+.weekday-picker { display: flex; gap: 6px; }
+.wdp-btn { flex: 1; padding: 10px 4px; border-radius: 8px; border: 1px solid var(--border2); background: var(--bg); color: var(--muted); font-size: 11px; font-family: sans-serif; transition: all 0.15s; }
+.wdp-btn.active { background: var(--green); border-color: var(--green); color: #0A1008; font-weight: 700; }
+
+/* Color picker */
+.color-grid { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.color-opt { width: 30px; height: 30px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; transition: all 0.15s; }
+.color-opt.selected { border-color: #fff; transform: scale(1.1); }
+
+/* Emoji grid */
+.emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; margin-top: 6px; }
+.emoji-opt { font-size: 20px; padding: 5px; border-radius: 7px; border: 2px solid transparent; background: var(--bg); cursor: pointer; text-align: center; }
+.emoji-opt.selected { border-color: var(--green); background: var(--bg3); }
+
+/* Buttons */
+.btn-primary { width: 100%; padding: 14px; background: var(--green); border: none; border-radius: 12px; color: #0A1008; font-size: 15px; font-family: sans-serif; font-weight: 700; margin-bottom: 10px; }
+.btn-primary:active { opacity: 0.85; }
+.btn-secondary { width: 100%; padding: 12px; background: transparent; border: 1px solid var(--border2); border-radius: 12px; color: var(--muted); font-size: 14px; font-family: sans-serif; }
+.btn-danger { width: 100%; padding: 14px; background: #3D0F0F; border: none; border-radius: 12px; color: var(--rose); font-size: 15px; font-family: sans-serif; font-weight: 600; margin-bottom: 10px; }
+
+/* ── TOAST ── */
+#toast { position: fixed; bottom: 88px; left: 50%; transform: translateX(-50%); background: var(--bg3); border: 1px solid var(--border2); border-radius: 10px; padding: 10px 20px; font-size: 13px; font-family: sans-serif; color: var(--text); opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; z-index: 700; }
+#toast.show { opacity: 1; }
+
+/* empty state */
+.empty-state { text-align: center; padding: 40px 20px; }
+.empty-state .es-icon { font-size: 48px; margin-bottom: 12px; }
+.empty-state .es-title { font-size: 16px; margin-bottom: 6px; }
+.empty-state .es-sub { font-size: 13px; color: var(--muted); font-family: sans-serif; line-height: 1.5; }
+
+/* history dot row */
+/* ── HISTORY VIEW ── */
+.hist-filter-bar { display: flex; gap: 6px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 2px; }
+.hist-filter-btn { flex-shrink: 0; padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border2); background: var(--bg2); color: var(--muted); font-size: 12px; font-family: sans-serif; transition: all 0.15s; white-space: nowrap; }
+.hist-filter-btn.active { background: var(--green); border-color: var(--green); color: #0A1008; font-weight: 700; }
+.hist-day-block { margin-bottom: 20px; }
+.hist-day-label { font-size: 11px; color: var(--muted); font-family: sans-serif; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.hist-day-label::after { content:""; flex:1; height:1px; background:var(--border); }
+.hist-entry { display: flex; align-items: center; gap: 12px; background: var(--bg2); border: 1px solid var(--border); border-radius: 11px; padding: 12px 14px; margin-bottom: 6px; }
+.hist-entry-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.hist-entry-info { flex: 1; }
+.hist-entry-name { font-size: 13px; font-family: sans-serif; color: var(--text); }
+.hist-entry-sub { font-size: 11px; color: var(--muted); font-family: sans-serif; margin-top: 2px; }
+.hist-entry-type { font-size: 11px; font-family: sans-serif; }
+.hist-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+.hist-stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+.hist-stat-num { font-size: 28px; letter-spacing: -1px; }
+.hist-stat-label { font-size: 11px; color: var(--muted); font-family: sans-serif; margin-top: 2px; }
+
+.hist-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--bg3); font-family: sans-serif; font-size: 12px; color: var(--muted); }
+.hist-row:last-child { border-bottom: none; }
+.hist-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── CALENDAR VIEW ── */
+.cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.cal-nav-btn { background: var(--bg2); border: 1px solid var(--border2); color: var(--muted); border-radius: 8px; padding: 6px 14px; font-size: 18px; }
+.cal-nav-btn:disabled { color: var(--muted2); opacity: 0.4; }
+.cal-nav-title { font-size: 17px; letter-spacing: -0.3px; }
+.cal-nav-sub { font-size: 11px; color: var(--muted); font-family: sans-serif; text-align: center; margin-top: 2px; }
+
+.cal-weekdays { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; margin-bottom: 4px; }
+.cal-weekday-lbl { text-align: center; font-size: 10px; color: var(--muted2); font-family: sans-serif; padding: 4px 0; letter-spacing: 0.5px; }
+
+.cal-grid-main { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; margin-bottom: 20px; }
+.cal-cell {
+  aspect-ratio: 1; border-radius: 9px; border: 1px solid transparent;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px; cursor: pointer; transition: all 0.15s; position: relative;
+  background: var(--bg2);
+}
+.cal-cell.empty { background: transparent; border-color: transparent; cursor: default; pointer-events: none; }
+.cal-cell.today { border-color: var(--green); }
+.cal-cell.selected { background: var(--bg3); border-color: var(--border2); }
+.cal-cell.future { opacity: 0.55; }
+.cal-cell .cc-num { font-size: 12px; font-family: sans-serif; color: var(--muted); line-height: 1; }
+.cal-cell.today .cc-num { color: var(--green); font-weight: 700; }
+.cal-cell .cc-dots { display: flex; gap: 2px; flex-wrap: wrap; justify-content: center; max-width: 28px; }
+.cal-cell .cc-dot { width: 5px; height: 5px; border-radius: 50%; }
+/* past day with tasks — show completion */
+.cal-cell.all-done { background: #0D1F10; border-color: var(--green); }
+.cal-cell.partial  { background: #1C1800; border-color: var(--amber); }
+.cal-cell.missed   { background: #1A0D0D; border-color: #3D1515; }
+.cal-cell.no-tasks { background: var(--bg2); }
+
+/* Day detail panel */
+.cal-detail { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+.cal-detail-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.cal-detail-date { font-size: 16px; letter-spacing: -0.3px; }
+.cal-detail-status { font-size: 12px; font-family: sans-serif; padding: 4px 10px; border-radius: 20px; }
+.cal-detail-status.done   { background: #0D2010; color: var(--green); }
+.cal-detail-status.partial{ background: #1C1800; color: var(--amber); }
+.cal-detail-status.missed { background: #1A0D0D; color: var(--rose); }
+.cal-detail-status.future { background: var(--bg3); color: var(--muted); }
+.cal-detail-status.empty  { background: var(--bg3); color: var(--muted); }
+
+.cal-task-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--bg3); }
+.cal-task-row:last-child { border-bottom: none; }
+.cal-task-check { width: 20px; height: 20px; border-radius: 5px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; }
+.cal-task-check.done-check { color: #0A1008; }
+.cal-task-check.miss-check { border: 2px solid #3D1515; color: var(--rose); font-size: 10px; }
+.cal-task-check.future-check { border: 2px solid var(--border2); color: var(--muted2); }
+.cal-task-name { font-size: 13px; font-family: sans-serif; flex: 1; color: var(--text); }
+.cal-task-sub  { font-size: 11px; color: var(--muted); font-family: sans-serif; }
+.cal-legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; }
+.cal-legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); font-family: sans-serif; }
+.cal-legend-dot { width: 10px; height: 10px; border-radius: 3px; }</style>
+</head>
+<body>
+
+<div id="header">
+  <div class="header-left">
+    <div class="eyebrow">Rodrigo · Jardim</div>
+    <h1>🌿 Jardim</h1>
+  </div>
+  <button id="hamburger-btn" onclick="openDrawer()">
+    <span></span><span></span><span></span>
+  </button>
+</div>
+
+<div id="view-hoje" class="view active"><div id="hoje-content"></div></div>
+<div id="view-grupos" class="view"><div id="grupos-content"></div></div>
+<div id="view-agenda" class="view"><div id="agenda-content"></div></div>
+<div id="view-pragas" class="view"><div id="pragas-content"></div></div>
+<div id="view-historico" class="view"><div id="historico-content"></div></div>
+<div id="view-calendario" class="view"><div id="calendario-content"></div></div>
+
+<nav id="nav">
+  <button class="nav-btn active" data-view="hoje" onclick="switchView('hoje')">
+    <span class="nav-icon">☀️</span>Hoje
+  </button>
+  <button class="nav-btn" data-view="grupos" onclick="switchView('grupos')">
+    <span class="nav-icon">🪴</span>Grupos
+  </button>
+  <button class="nav-btn" data-view="agenda" onclick="switchView('agenda')">
+    <span class="nav-icon">📋</span>Agenda
+  </button>
+  <button class="nav-btn" data-view="calendario" onclick="switchView('calendario')">
+    <span class="nav-icon">📅</span>Calendário
+  </button>
+  <button class="nav-btn" data-view="pragas" onclick="switchView('pragas')">
+    <span class="nav-icon">🐛</span>Pragas
+  </button>
+  <button class="nav-btn" data-view="historico" onclick="switchView('historico')">
+    <span class="nav-icon">📜</span>Histórico
+  </button>
+</nav>
+
+<div id="toast"></div>
+
+<!-- ── DRAWER ── -->
+<div id="drawer-overlay" onclick="closeDrawer()"></div>
+<div id="drawer">
+  <div class="drawer-header"><div class="drawer-title">Configurações</div></div>
+  <button class="drawer-item" onclick="exportData();closeDrawer()">
+    <span class="di-icon">⬇️</span><div><div class="di-text">Exportar backup</div><div class="di-sub">Salvar todos os dados</div></div>
+  </button>
+  <button class="drawer-item" onclick="importData();closeDrawer()">
+    <span class="di-icon">⬆️</span><div><div class="di-text">Importar backup</div><div class="di-sub">Restaurar dados salvos</div></div>
+  </button>
+</div>
+
+<!-- ── MODAL: GRUPO ── -->
+<div id="modal-group" class="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-title" id="mg-title">Novo grupo</div>
+    <div class="modal-sub">Defina o nome e a cor do grupo.</div>
+    <div class="form-group"><label class="form-label">Nome do grupo</label><input id="mg-name" class="form-input" placeholder="Ex: Fundo do quintal" maxlength="40"></div>
+    <div class="form-group"><label class="form-label">Cor</label><div class="color-grid" id="mg-colors"></div></div>
+    <button class="btn-primary" onclick="saveGroup()">Salvar grupo</button>
+    <button class="btn-secondary" onclick="closeModal('modal-group')">Cancelar</button>
+  </div>
+</div>
+
+<!-- ── MODAL: PLANTA ── -->
+<div id="modal-plant" class="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-title" id="mp-title">Nova planta</div>
+    <div class="modal-sub" id="mp-sub">Cadastre a planta no grupo.</div>
+    <div class="form-group"><label class="form-label">Nome da planta</label><input id="mp-name" class="form-input" placeholder="Ex: Jabuticabeira" maxlength="40"></div>
+    <div class="form-group"><label class="form-label">Ícone</label><div class="emoji-grid" id="mp-emoji"></div></div>
+    <button class="btn-primary" onclick="savePlant()">Salvar planta</button>
+    <button class="btn-secondary" onclick="closeModal('modal-plant')">Cancelar</button>
+    <button class="btn-danger" id="mp-delete-btn" onclick="deletePlant()" style="display:none;margin-top:6px">Excluir planta</button>
+  </div>
+</div>
+
+<!-- ── MODAL: AGENDA ── -->
+<div id="modal-schedule" class="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-title" id="ms-title">Nova agenda</div>
+    <div class="modal-sub">Configure a frequência para um grupo.</div>
+
+    <!-- 1. Grupo -->
+    <div class="form-group">
+      <label class="form-label">1. Grupo</label>
+      <select id="ms-group" class="form-select form-input"></select>
+    </div>
+
+    <!-- 2. Tipo -->
+    <div class="form-group">
+      <label class="form-label">2. Tipo</label>
+      <select id="ms-type" class="form-select form-input" onchange="scheduleTypeChange()">
+        <option value="water">💧 Rega</option>
+        <option value="defense">🧪 Defensivo</option>
+      </select>
+    </div>
+    <div class="form-group" id="ms-product-wrap" style="display:none">
+      <label class="form-label">Produto / receita</label>
+      <input id="ms-product" class="form-input" placeholder="Ex: Calda bordalesa 2%" maxlength="60">
+    </div>
+
+    <!-- 3. Dias da semana -->
+    <div class="form-group">
+      <label class="form-label">3. Dias da semana</label>
+      <div class="weekday-picker" id="ms-weekdays">
+        <button class="wdp-btn" data-day="0" onclick="toggleDay(this)">Dom</button>
+        <button class="wdp-btn" data-day="1" onclick="toggleDay(this)">Seg</button>
+        <button class="wdp-btn" data-day="2" onclick="toggleDay(this)">Ter</button>
+        <button class="wdp-btn" data-day="3" onclick="toggleDay(this)">Qua</button>
+        <button class="wdp-btn" data-day="4" onclick="toggleDay(this)">Qui</button>
+        <button class="wdp-btn" data-day="5" onclick="toggleDay(this)">Sex</button>
+        <button class="wdp-btn" data-day="6" onclick="toggleDay(this)">Sáb</button>
+      </div>
+    </div>
+
+    <!-- 4. Frequência -->
+    <div class="form-group">
+      <label class="form-label">4. Frequência — repetir a cada quantas semanas</label>
+      <div style="display:flex;align-items:center;gap:12px">
+        <input id="ms-interval" class="form-input" type="number" min="1" max="52" value="1" style="text-align:center;width:80px;flex-shrink:0">
+        <span style="font-size:13px;color:var(--muted);font-family:sans-serif;line-height:1.4" id="ms-interval-hint">semana(s) — toda semana</span>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="saveSchedule()">Salvar agenda</button>
+    <button class="btn-secondary" onclick="closeModal('modal-schedule')">Cancelar</button>
+    <button class="btn-danger" id="ms-delete-btn" onclick="deleteSchedule()" style="display:none;margin-top:6px">Excluir agenda</button>
+  </div>
+</div>
+
+<!-- ── MODAL: PRAGA ── -->
+<div id="modal-pest" class="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-title" id="mpe-title">Nova praga / doença</div>
+    <div class="modal-sub">Cadastre o problema e como combatê-lo.</div>
+    <div class="form-group"><label class="form-label">Nome da praga ou doença</label><input id="mpe-name" class="form-input" placeholder="Ex: Pulgão" maxlength="50"></div>
+    <div class="form-group"><label class="form-label">Ícone</label><div class="emoji-grid" id="mpe-emoji"></div></div>
+    <div class="form-group"><label class="form-label">Sintomas / como identificar</label><textarea id="mpe-symptom" class="form-textarea" placeholder="Descreva os sintomas visíveis..."></textarea></div>
+    <div class="form-group"><label class="form-label">Produto ou receita para combate</label><textarea id="mpe-recipe" class="form-textarea" placeholder="Ex: Calda de alho 5% — 1 cabeça de alho em 1L de água..."></textarea></div>
+    <div class="form-group"><label class="form-label">Plantas afetadas</label><input id="mpe-plants" class="form-input" placeholder="Ex: Rosas, Jabuticabeira, Videira"></div>
+    <button class="btn-primary" onclick="savePest()">Salvar</button>
+    <button class="btn-secondary" onclick="closeModal('modal-pest')">Cancelar</button>
+    <button class="btn-danger" id="mpe-delete-btn" onclick="deletePest()" style="display:none;margin-top:6px">Excluir</button>
+  </div>
+</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────
+let groups    = []; // {id, name, color}
+let plants    = []; // {id, groupId, name, icon}
+let schedules = []; // {id, groupId, type, product, days[], interval, startDate}
+let pests     = []; // {id, name, icon, symptom, recipe, plants}
+let checklist = {}; // { "YYYY-MM-DD": { scheduleId: bool } }
+let history   = []; // [{id, date, scheduleId, groupId, type, product, groupName}]
+
+const GROUP_COLORS = ["#4ADE80","#A3E635","#2DD4BF","#60A5FA","#C084FC","#FB923C","#F472B6","#FCD34D","#34D399","#F87171"];
+const PLANT_EMOJIS = ["🌿","🌱","🍃","🌳","🌲","🪴","🌵","🌾","🍀","🌺","🌸","🌻","🌹","🍎","🍊","🍋","🍇","🍓","🍌","🫐"];
+const PEST_EMOJIS  = ["🐛","🦗","🐞","🕷️","🦟","🍄","🦠","🐜","🐝","🌫️","💧","🔴","🟡","⚫","🟤","🌿","❓"];
+
+function loadAll() {
+  try { groups    = JSON.parse(localStorage.getItem("jardim_groups")    || "[]"); } catch { groups=[]; }
+  try { plants    = JSON.parse(localStorage.getItem("jardim_plants")    || "[]"); } catch { plants=[]; }
+  try { schedules = JSON.parse(localStorage.getItem("jardim_schedules") || "[]"); } catch { schedules=[]; }
+  try { pests     = JSON.parse(localStorage.getItem("jardim_pests")     || "[]"); } catch { pests=[]; }
+  try { checklist = JSON.parse(localStorage.getItem("jardim_checklist") || "{}"); } catch { checklist={}; }
+  try { history   = JSON.parse(localStorage.getItem("jardim_history")   || "[]"); } catch { history=[]; }
+  if(!groups.length) seedDemo();
+}
+
+function saveAll() {
+  localStorage.setItem("jardim_groups",    JSON.stringify(groups));
+  localStorage.setItem("jardim_plants",    JSON.stringify(plants));
+  localStorage.setItem("jardim_schedules", JSON.stringify(schedules));
+  localStorage.setItem("jardim_pests",     JSON.stringify(pests));
+  localStorage.setItem("jardim_checklist", JSON.stringify(checklist));
+  localStorage.setItem("jardim_history",   JSON.stringify(history));
+}
+
+function seedDemo() {
+  groups = [
+    { id:"g1", name:"Fundo do quintal", color:"#4ADE80" },
+    { id:"g2", name:"Lateral da casa",  color:"#60A5FA" },
+    { id:"g3", name:"Vasos e canteiros",color:"#FCD34D" },
+  ];
+  plants = [
+    { id:"p1", groupId:"g1", name:"Jabuticabeira",  icon:"🌳" },
+    { id:"p2", groupId:"g1", name:"Pitangueira",    icon:"🌳" },
+    { id:"p3", groupId:"g1", name:"Bananeira",      icon:"🍌" },
+    { id:"p4", groupId:"g1", name:"Laranjeira",     icon:"🍊" },
+    { id:"p5", groupId:"g1", name:"Videira",        icon:"🍇" },
+    { id:"p6", groupId:"g2", name:"Maracujá",       icon:"🌺" },
+    { id:"p7", groupId:"g2", name:"Pitaya",         icon:"🌵" },
+    { id:"p8", groupId:"g3", name:"Jasmim",         icon:"🌸" },
+    { id:"p9", groupId:"g3", name:"Morango",        icon:"🍓" },
+    { id:"p10",groupId:"g3", name:"Ervas em vasos", icon:"🌿" },
+  ];
+  schedules = [
+    { id:"s1", groupId:"g1", type:"water",   product:"",               freqType:"weekly", days:[1,4],   interval:1 },
+    { id:"s2", groupId:"g1", type:"defense", product:"Calda bordalesa",freqType:"weekly", days:[1],     interval:3 },
+    { id:"s3", groupId:"g2", type:"water",   product:"",               freqType:"weekly", days:[1,3,5], interval:1 },
+    { id:"s4", groupId:"g3", type:"water",   product:"",               freqType:"weekly", days:[1,2,3,4,5,6,0], interval:1 },
+  ];
+  pests = [
+    { id:"pe1", name:"Pulgão", icon:"🐛", symptom:"Pequenos insetos verdes ou pretos nas folhas novas e brotos. Causam enrolamento e amarelamento das folhas.", recipe:"Calda de alho: 1 cabeça de alho triturada em 1L de água. Deixar descansar 24h, coar e pulverizar.", plants:"Roseira, Jasmim, Videira" },
+    { id:"pe2", name:"Cochonilha", icon:"🐞", symptom:"Manchas brancas ou marrons, aspecto de algodão nas hastes. Folhas ficam pegajosas.", recipe:"Álcool isopropílico 70%: aplicar com algodão diretamente nas colônias. Ou detergente neutro 2% pulverizado.", plants:"Cactos, Pitaya, Jabuticabeira" },
+    { id:"pe3", name:"Míldio",icon:"🍄", symptom:"Manchas amarelas na face superior das folhas com mofo cinza/branco na face inferior. Comum em dias úmidos.", recipe:"Calda bordalesa 1%: 100g de sulfato de cobre + 100g de cal virgem em 10L de água. Pulverizar a cada 15 dias.", plants:"Videira, Maracujá, Tomateiro" },
+  ];
+  saveAll();
+}
+
+// ── UTILS ──────────────────────────────────────────────────────
+function toKey(d) { return d.toISOString().split("T")[0]; }
+function todayKey() { return toKey(new Date()); }
+
+function isDueToday(schedule) {
+  const today = new Date();
+  const dow = today.getDay();
+  if(!schedule.days.includes(dow)) return false;
+  const interval = schedule.interval || 1;
+  if(interval === 1) return true;
+  // Use the schedule's own startDate as the cycle reference
+  const ref = schedule.startDate ? new Date(schedule.startDate) : new Date(2024, 0, 7);
+  // Find the Sunday of the ref week
+  const refSunday = new Date(ref);
+  refSunday.setDate(ref.getDate() - ref.getDay());
+  refSunday.setHours(0,0,0,0);
+  const todaySunday = new Date(today);
+  todaySunday.setDate(today.getDate() - today.getDay());
+  todaySunday.setHours(0,0,0,0);
+  const weekDiff = Math.round((todaySunday - refSunday) / (7 * 24 * 60 * 60 * 1000));
+  return weekDiff % interval === 0;
+}
+
+function isChecked(scheduleId) {
+  const today = todayKey();
+  return !!(checklist[today] && checklist[today][scheduleId]);
+}
+
+function toggleCheck(scheduleId) {
+  const today = todayKey();
+  if(!checklist[today]) checklist[today] = {};
+  const nowChecked = !checklist[today][scheduleId];
+  checklist[today][scheduleId] = nowChecked;
+
+  if(nowChecked) {
+    // Record in history
+    const s = schedules.find(x=>x.id===scheduleId);
+    const g = s ? groups.find(x=>x.id===s.groupId) : null;
+    history.push({
+      id: "h_"+Date.now(),
+      date: today,
+      scheduleId,
+      groupId: s?.groupId || "",
+      groupName: g?.name || "—",
+      groupColor: g?.color || "#4ADE80",
+      type: s?.type || "water",
+      product: s?.product || "",
+    });
+  } else {
+    // Remove from history (un-check)
+    history = history.filter(h => !(h.date === today && h.scheduleId === scheduleId));
+  }
+
+  saveAll(); renderHoje();
+}
+
+// ── RENDER: HOJE ───────────────────────────────────────────────
+function renderHoje() {
+  const today = new Date();
+  const daysNames = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+  const months = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+  const dateStr = `${daysNames[today.getDay()]}, ${today.getDate()} ${months[today.getMonth()]}`;
+
+  const dueTasks = schedules.filter(s => isDueToday(s));
+  const waterTasks   = dueTasks.filter(s => s.type==="water");
+  const defenseTasks = dueTasks.filter(s => s.type==="defense");
+  const doneCount = dueTasks.filter(s => isChecked(s.id)).length;
+  const totalCount = dueTasks.length;
+
+  if(!totalCount) {
+    document.getElementById("hoje-content").innerHTML = `
+      <div style="margin-bottom:6px"><div class="today-date">${dateStr}</div></div>
+      <div class="today-summary">
+        <div class="summary-pill"><div class="sp-num" style="color:var(--green)">0</div><div class="sp-label">Regas hoje</div></div>
+        <div class="summary-pill"><div class="sp-num" style="color:var(--rose)">0</div><div class="sp-label">Defensivos</div></div>
+        <div class="summary-pill"><div class="sp-num" style="color:var(--amber)">—</div><div class="sp-label">Pendentes</div></div>
+      </div>
+      <div class="empty-state">
+        <div class="es-icon">🌤️</div>
+        <div class="es-title">Nada agendado hoje</div>
+        <div class="es-sub">Cadastre agendas na aba <strong>Agenda</strong> para aparecer aqui.</div>
+      </div>`;
+    return;
+  }
+
+  const pendCount = totalCount - doneCount;
+  let html = `
+    <div style="margin-bottom:6px"><div class="today-date">${dateStr}</div></div>
+    <div class="today-summary">
+      <div class="summary-pill"><div class="sp-num" style="color:var(--blue)">${waterTasks.length}</div><div class="sp-label">Regas</div></div>
+      <div class="summary-pill"><div class="sp-num" style="color:var(--rose)">${defenseTasks.length}</div><div class="sp-label">Defensivos</div></div>
+      <div class="summary-pill"><div class="sp-num" style="color:${pendCount===0?"var(--green)":"var(--amber)"}">${pendCount}</div><div class="sp-label">Pendentes</div></div>
+    </div>`;
+
+  if(waterTasks.length) {
+    const wDone = waterTasks.filter(s=>isChecked(s.id)).length;
+    html += `<div class="task-section-title"><span class="tst-icon">💧</span><span class="tst-label">Regas</span><span class="tst-count">${wDone}/${waterTasks.length}</span></div>`;
+    waterTasks.forEach(s => {
+      const g = groups.find(x=>x.id===s.groupId);
+      const done = isChecked(s.id);
+      html += taskRow(s, g, done);
+    });
+  }
+
+  if(defenseTasks.length) {
+    const dDone = defenseTasks.filter(s=>isChecked(s.id)).length;
+    html += `<div class="task-section-title"><span class="tst-icon">🧪</span><span class="tst-label">Defensivos</span><span class="tst-count">${dDone}/${defenseTasks.length}</span></div>`;
+    defenseTasks.forEach(s => {
+      const g = groups.find(x=>x.id===s.groupId);
+      const done = isChecked(s.id);
+      html += taskRow(s, g, done);
+    });
+  }
+
+  if(doneCount === totalCount && totalCount > 0) {
+    html += `<div style="text-align:center;padding:20px 0 8px;font-size:13px;color:var(--green);font-family:sans-serif">🎉 Tudo concluído hoje!</div>`;
+  }
+
+  document.getElementById("hoje-content").innerHTML = html;
+}
+
+function taskRow(s, g, done) {
+  const color = g ? g.color : "var(--green)";
+  const checkStyle = done ? `border-color:${color};background:${color};color:#0A1008` : `border-color:var(--border2)`;
+  const product = s.product ? `<div class="task-freq">${s.product}</div>` : "";
+  return `<div class="task-row${done?" done":""}" onclick="toggleCheck('${s.id}')">
+    <div class="task-check" style="${checkStyle}">${done?"✓":""}</div>
+    <div style="flex:1">
+      <div class="task-name">${g ? g.name : "Grupo"}</div>
+      <div class="task-group-badge">${s.type==="water"?"💧 Rega":"🧪 Defensivo"}${product?" · "+s.product:""}</div>
+    </div>
+    ${g ? `<div style="width:10px;height:10px;border-radius:50%;background:${g.color};flex-shrink:0"></div>` : ""}
+  </div>`;
+}
+
+// ── RENDER: GRUPOS ─────────────────────────────────────────────
+function renderGrupos() {
+  let html = "";
+  if(!groups.length) {
+    html = `<div class="empty-state"><div class="es-icon">🪴</div><div class="es-title">Nenhum grupo ainda</div><div class="es-sub">Crie grupos para organizar suas plantas.</div></div>`;
+  } else {
+    groups.forEach(g => {
+      const gPlants = plants.filter(p => p.groupId === g.id);
+      html += `<div class="group-card" id="gc-${g.id}">
+        <div class="group-header" onclick="toggleGroupCard('${g.id}')">
+          <div class="group-dot" style="background:${g.color}"></div>
+          <div class="group-name">${g.name}</div>
+          <span class="group-count">${gPlants.length} planta${gPlants.length!==1?"s":""}</span>
+          <button onclick="event.stopPropagation();openEditGroup('${g.id}')" style="background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:4px 9px;font-size:11px;color:var(--muted);font-family:sans-serif;margin-right:4px">Editar</button>
+          <span class="group-chevron">›</span>
+        </div>
+        <div class="group-plants">
+          ${gPlants.map(p => `<div class="plant-row">
+            <span class="plant-icon">${p.icon}</span>
+            <span class="plant-name">${p.name}</span>
+            <button class="plant-edit-btn" onclick="openEditPlant('${p.id}')">Editar</button>
+          </div>`).join("")}
+          <div class="group-add-plant" onclick="openAddPlant('${g.id}')">
+            <span style="font-size:16px">＋</span> Adicionar planta
+          </div>
+        </div>
+      </div>`;
+    });
+  }
+  html += `<button class="add-group-btn" onclick="openAddGroup()">＋ Novo grupo</button>`;
+  document.getElementById("grupos-content").innerHTML = html;
+}
+
+function toggleGroupCard(id) {
+  document.getElementById("gc-"+id)?.classList.toggle("open");
+}
+
+// ── RENDER: AGENDA ─────────────────────────────────────────────
+function renderAgenda() {
+  const dayNames = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+  let html = "";
+  if(!schedules.length) {
+    html = `<div class="empty-state"><div class="es-icon">📋</div><div class="es-title">Nenhuma agenda</div><div class="es-sub">Configure a frequência de regas e defensivos por grupo.</div></div>`;
+  } else {
+    // group by groupId
+    const byGroup = {};
+    schedules.forEach(s => { if(!byGroup[s.groupId]) byGroup[s.groupId] = []; byGroup[s.groupId].push(s); });
+    Object.keys(byGroup).forEach(gid => {
+      const g = groups.find(x=>x.id===gid);
+      if(!g) return;
+      html += `<div class="sec-label" style="margin-top:4px">${g.name}</div>`;
+      byGroup[gid].forEach(s => {
+        const freqDesc = s.days.map(d=>dayNames[d]).join(", ")
+          + (s.interval > 1 ? ` · a cada ${s.interval} semana${s.interval>1?"s":""}` : " · toda semana");
+        const activeDots = dayNames.map((d,i) => `<div class="wd-dot${s.days.includes(i)?" active":""}">${d}</div>`).join("");
+        html += `<div class="schedule-card">
+          <div class="schedule-header">
+            <span class="schedule-type-badge ${s.type}">${s.type==="water"?"💧 Rega":"🧪 Defensivo"}</span>
+            <div class="schedule-info">
+              <div class="schedule-name">${s.product || (s.type==="water"?"Rega padrão":"Defensivo")}</div>
+              <div class="schedule-desc">${freqDesc}</div>
+            </div>
+            <button class="schedule-edit-btn" onclick="openEditSchedule('${s.id}')">Editar</button>
+          </div>
+          ${`<div class="weekday-dots">${activeDots}</div>`}
+        </div>`;
+      });
+    });
+  }
+  html += `<button class="add-group-btn" onclick="openAddSchedule()">＋ Nova agenda</button>`;
+  document.getElementById("agenda-content").innerHTML = html;
+}
+
+// ── RENDER: PRAGAS ─────────────────────────────────────────────
+function renderPragas() {
+  let html = "";
+  if(!pests.length) {
+    html = `<div class="empty-state"><div class="es-icon">🐛</div><div class="es-title">Nenhuma praga cadastrada</div><div class="es-sub">Registre pragas, doenças e como combatê-las.</div></div>`;
+  } else {
+    pests.forEach(p => {
+      const plantTags = p.plants ? p.plants.split(",").map(x=>`<div class="pest-plant-tag">${x.trim()}</div>`).join("") : "";
+      html += `<div class="pest-card" id="pc-${p.id}">
+        <div class="pest-header" onclick="togglePestCard('${p.id}')">
+          <div class="pest-icon-wrap">${p.icon}</div>
+          <div style="flex:1;min-width:0">
+            <div class="pest-name">${p.name}</div>
+            <div class="pest-symptom">${p.symptom||"Sem descrição"}</div>
+          </div>
+          <span style="color:var(--muted2);font-size:14px;transition:transform 0.2s" class="pc-chev">›</span>
+        </div>
+        <div class="pest-body">
+          ${p.symptom?`<div class="pest-section"><div class="pest-section-label">Sintomas</div><div class="pest-section-text">${p.symptom}</div></div>`:""}
+          ${p.recipe?`<div class="pest-section"><div class="pest-section-label">Receita / produto</div><div class="pest-section-text">${p.recipe}</div></div>`:""}
+          ${plantTags?`<div class="pest-section"><div class="pest-section-label">Plantas afetadas</div><div class="pest-plants-list">${plantTags}</div></div>`:""}
+          <div class="pest-actions">
+            <button class="pest-action-btn" onclick="openEditPest('${p.id}')">✏️ Editar</button>
+            <button class="pest-action-btn del" onclick="askDeletePest('${p.id}')">🗑️ Excluir</button>
+          </div>
+        </div>
+      </div>`;
+    });
+  }
+  html += `<button class="add-group-btn" onclick="openAddPest()">＋ Nova praga / doença</button>`;
+  document.getElementById("pragas-content").innerHTML = html;
+}
+
+function togglePestCard(id) {
+  const card = document.getElementById("pc-"+id);
+  card?.classList.toggle("open");
+}
+
+// ── RENDER: HISTÓRICO ──────────────────────────────────────────
+let histFilterType = "all";   // "all" | "water" | "defense"
+let histFilterGroup = "all";  // "all" | groupId
+
+function renderHistorico() {
+  const months = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+  const dayNames = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+
+  // Filter
+  let entries = [...history].filter(h => {
+    if(histFilterType !== "all" && h.type !== histFilterType) return false;
+    if(histFilterGroup !== "all" && h.groupId !== histFilterGroup) return false;
+    return true;
+  }).sort((a,b) => b.date.localeCompare(a.date));
+
+  // Stats
+  const totalWater   = history.filter(h=>h.type==="water").length;
+  const totalDefense = history.filter(h=>h.type==="defense").length;
+
+  // Filter bar
+  const groupFilters = [{ id:"all", name:"Todos" }, ...groups.map(g=>({id:g.id, name:g.name}))];
+  const typeFilters  = [
+    { id:"all",     label:"Todos" },
+    { id:"water",   label:"💧 Regas" },
+    { id:"defense", label:"🧪 Defensivos" },
+  ];
+
+  let filterHtml = typeFilters.map(f =>
+    `<button class="hist-filter-btn${histFilterType===f.id?" active":""}" onclick="setHistFilter('type','${f.id}')">${f.label}</button>`
+  ).join("") + groupFilters.map(g =>
+    `<button class="hist-filter-btn${histFilterGroup===g.id?" active":""}" onclick="setHistFilter('group','${g.id}')">${g.name}</button>`
+  ).join("");
+
+  // Stats cards
+  let statsHtml = `
+    <div class="hist-stats">
+      <div class="hist-stat-card">
+        <div class="hist-stat-num" style="color:var(--blue)">${totalWater}</div>
+        <div class="hist-stat-label">💧 Regas realizadas</div>
+      </div>
+      <div class="hist-stat-card">
+        <div class="hist-stat-num" style="color:var(--rose)">${totalDefense}</div>
+        <div class="hist-stat-label">🧪 Defensivos aplicados</div>
+      </div>
+    </div>`;
+
+  // Group entries by date
+  if(!entries.length) {
+    document.getElementById("historico-content").innerHTML = `
+      <div class="hist-filter-bar">${filterHtml}</div>
+      ${statsHtml}
+      <div class="empty-state">
+        <div class="es-icon">📜</div>
+        <div class="es-title">Nenhum registro ainda</div>
+        <div class="es-sub">Dê check nas tarefas do dia para registrar o histórico automaticamente.</div>
+      </div>`;
+    return;
+  }
+
+  // Build day blocks
+  const byDate = {};
+  entries.forEach(h => { if(!byDate[h.date]) byDate[h.date]=[]; byDate[h.date].push(h); });
+
+  let listHtml = "";
+  Object.keys(byDate).sort((a,b)=>b.localeCompare(a)).forEach(date => {
+    const d = new Date(date+"T12:00:00");
+    const isToday = date === todayKey();
+    const label = isToday ? "Hoje" : `${dayNames[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]}`;
+    listHtml += `<div class="hist-day-block"><div class="hist-day-label">${label}</div>`;
+    byDate[date].forEach(h => {
+      const typeIcon  = h.type==="water" ? "💧" : "🧪";
+      const typeLabel = h.type==="water" ? "Rega" : "Defensivo";
+      const subText   = h.product ? `${typeLabel} · ${h.product}` : typeLabel;
+      listHtml += `<div class="hist-entry">
+        <div class="hist-entry-dot" style="background:${h.groupColor||"#4ADE80"}"></div>
+        <div class="hist-entry-info">
+          <div class="hist-entry-name">${h.groupName}</div>
+          <div class="hist-entry-sub">${typeIcon} ${subText}</div>
+        </div>
+        <div class="hist-entry-type" style="color:${h.type==="water"?"var(--blue)":"var(--rose)"}">${typeIcon}</div>
+      </div>`;
+    });
+    listHtml += `</div>`;
+  });
+
+  document.getElementById("historico-content").innerHTML = `
+    <div class="hist-filter-bar">${filterHtml}</div>
+    ${statsHtml}
+    <div class="sec-label">${entries.length} registro${entries.length!==1?"s":""}</div>
+    ${listHtml}`;
+}
+
+function setHistFilter(key, val) {
+  if(key==="type")  histFilterType  = val;
+  if(key==="group") histFilterGroup = val;
+  renderHistorico();
+}
+
+// ── RENDER: CALENDÁRIO ─────────────────────────────────────────
+let calMonthOffset = 0;
+let calSelectedDate = todayKey();
+
+function isDueOnDate(schedule, dateKey) {
+  const d = new Date(dateKey + "T12:00:00");
+  const dow = d.getDay();
+  if(!schedule.days.includes(dow)) return false;
+  const interval = schedule.interval || 1;
+  if(interval === 1) return true;
+  const ref = schedule.startDate ? new Date(schedule.startDate + "T12:00:00") : new Date(2024, 0, 7);
+  const refSunday = new Date(ref); refSunday.setDate(ref.getDate() - ref.getDay()); refSunday.setHours(0,0,0,0);
+  const daySunday = new Date(d);   daySunday.setDate(d.getDate()   - d.getDay());   daySunday.setHours(0,0,0,0);
+  const wDiff = Math.round((daySunday - refSunday) / (7*24*60*60*1000));
+  return wDiff % interval === 0;
+}
+
+function getDayTasks(dateKey) {
+  return schedules.filter(s => isDueOnDate(s, dateKey));
+}
+
+function getDayStatus(dateKey) {
+  const today = todayKey();
+  const tasks = getDayTasks(dateKey);
+  if(!tasks.length) return "empty";
+  if(dateKey > today) return "future";
+  const done = tasks.filter(s => checklist[dateKey]?.[s.id]).length;
+  if(done === 0) return "missed";
+  if(done === tasks.length) return "done";
+  return "partial";
+}
+
+function renderCalendario() {
+  const MONTHS_PT  = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+  const MONTHS_SH  = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+  const DAY_NAMES  = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+  const DAY_NAMES_LONG = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+  const today = todayKey();
+  const now   = new Date();
+  const month = ((now.getMonth() + calMonthOffset) % 12 + 12) % 12;
+  const year  = now.getFullYear() + Math.floor((now.getMonth() + calMonthOffset) / 12);
+
+  const firstDay   = new Date(year, month, 1);
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const startDow   = firstDay.getDay();
+
+  // Build calendar cells
+  let cells = [];
+  for(let i = 0; i < startDow; i++) cells.push(null); // empty
+  for(let d = 1; d <= daysInMonth; d++) {
+    const dateKey = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    cells.push(dateKey);
+  }
+
+  // Month stats
+  const pastDays = cells.filter(c => c && c <= today);
+  const totalPlanned = pastDays.reduce((s,d) => s + getDayTasks(d).length, 0);
+  const totalDone    = pastDays.reduce((s,d) => {
+    const tasks = getDayTasks(d);
+    return s + tasks.filter(t => checklist[d]?.[t.id]).length;
+  }, 0);
+  const pct = totalPlanned ? Math.round(totalDone/totalPlanned*100) : null;
+
+  // Grid cells HTML
+  let gridHtml = DAY_NAMES.map(d => `<div class="cal-weekday-lbl">${d}</div>`).join("");
+  gridHtml = `<div class="cal-weekdays">${gridHtml}</div><div class="cal-grid-main">`;
+
+  cells.forEach(dateKey => {
+    if(!dateKey) { gridHtml += `<div class="cal-cell empty"></div>`; return; }
+    const status = getDayStatus(dateKey);
+    const tasks  = getDayTasks(dateKey);
+    const isToday = dateKey === today;
+    const isFuture = dateKey > today;
+    const isSel  = dateKey === calSelectedDate;
+    const d = new Date(dateKey + "T12:00:00");
+
+    // Status class for bg colour
+    const statusClass = isFuture ? "future" : status === "done" ? "all-done" : status === "partial" ? "partial" : status === "missed" && tasks.length ? "missed" : "no-tasks";
+
+    // Dots: one per schedule, coloured by group
+    const dots = tasks.slice(0,6).map(s => {
+      const g = groups.find(x=>x.id===s.groupId);
+      const col = g?.color || "#4ADE80";
+      const isDone = checklist[dateKey]?.[s.id];
+      return `<div class="cc-dot" style="background:${isDone || isFuture ? col : "#3D1515"}"></div>`;
+    }).join("");
+
+    gridHtml += `<div class="cal-cell ${statusClass}${isToday?" today":""}${isSel?" selected":""}"
+      onclick="calSelectDate('${dateKey}')">
+      <span class="cc-num">${d.getDate()}</span>
+      ${tasks.length ? `<div class="cc-dots">${dots}</div>` : ""}
+    </div>`;
+  });
+  gridHtml += `</div>`;
+
+  // Legend
+  const legendHtml = `<div class="cal-legend">
+    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#0D2010;border:1px solid var(--green)"></div>Tudo feito</div>
+    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#1C1800;border:1px solid var(--amber)"></div>Parcial</div>
+    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#1A0D0D;border:1px solid #3D1515"></div>Não feito</div>
+    <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--bg2);border:1px solid var(--border2);opacity:.5"></div>Planejado</div>
+  </div>`;
+
+  // Month stats bar
+  const statsHtml = pct !== null ? `
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;gap:14px">
+      <div style="flex:1">
+        <div style="font-size:11px;color:var(--muted);font-family:sans-serif;margin-bottom:6px">Cumprimento do mês</div>
+        <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${pct>=80?"var(--green)":pct>=50?"var(--amber)":"var(--rose)"};border-radius:3px;transition:width 0.4s"></div>
+        </div>
+      </div>
+      <div style="font-size:22px;font-family:Georgia;color:${pct>=80?"var(--green)":pct>=50?"var(--amber)":"var(--rose)"}">${pct}%</div>
+    </div>` : "";
+
+  // Selected day detail
+  const detailHtml = calSelectedDate ? buildDayDetail(calSelectedDate, DAY_NAMES_LONG, MONTHS_SH) : "";
+
+  document.getElementById("calendario-content").innerHTML = `
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="calChangeMonth(-1)">‹</button>
+      <div style="text-align:center">
+        <div class="cal-nav-title">${MONTHS_PT[month]}</div>
+        <div class="cal-nav-sub">${year}</div>
+      </div>
+      <button class="cal-nav-btn" onclick="calChangeMonth(1)">›</button>
+    </div>
+    ${legendHtml}
+    ${gridHtml}
+    ${statsHtml}
+    ${detailHtml}`;
+}
+
+function calToggleCheck(scheduleId, dateKey) {
+  if(!checklist[dateKey]) checklist[dateKey] = {};
+  const nowChecked = !checklist[dateKey][scheduleId];
+  checklist[dateKey][scheduleId] = nowChecked;
+
+  if(nowChecked) {
+    const s = schedules.find(x=>x.id===scheduleId);
+    const g = s ? groups.find(x=>x.id===s.groupId) : null;
+    history.push({
+      id: "h_"+Date.now(),
+      date: dateKey,
+      scheduleId,
+      groupId: s?.groupId || "",
+      groupName: g?.name || "—",
+      groupColor: g?.color || "#4ADE80",
+      type: s?.type || "water",
+      product: s?.product || "",
+    });
+  } else {
+    history = history.filter(h => !(h.date === dateKey && h.scheduleId === scheduleId));
+  }
+
+  saveAll();
+  // Re-render today view too if it's today
+  if(dateKey === todayKey() && currentView === "hoje") renderHoje();
+  renderCalendario();
+}
+
+function buildDayDetail(dateKey, dayNames, monthsShort) {
+  const today = todayKey();
+  const d = new Date(dateKey + "T12:00:00");
+  const tasks = getDayTasks(dateKey);
+  const isFuture = dateKey > today;
+  const status = getDayStatus(dateKey);
+
+  const statusLabels = { done:"✓ Tudo concluído", partial:"⚠ Parcialmente feito", missed:"✗ Não realizado", future:"Planejado", empty:"Sem tarefas" };
+  const statusClass  = { done:"done", partial:"partial", missed:"missed", future:"future", empty:"empty" };
+  const isToday = dateKey === today;
+  const dateLabel = isToday ? "Hoje" : `${dayNames[d.getDay()]}, ${d.getDate()} ${monthsShort[d.getMonth()]}`;
+
+  if(!tasks.length) {
+    return `<div class="cal-detail">
+      <div class="cal-detail-header">
+        <div class="cal-detail-date">${dateLabel}</div>
+        <span class="cal-detail-status empty">Dia livre</span>
+      </div>
+      <div style="font-size:13px;color:var(--muted);font-family:sans-serif">Nenhuma tarefa agendada para este dia.</div>
+    </div>`;
+  }
+
+  let taskRows = "";
+  tasks.forEach(s => {
+    const g = groups.find(x=>x.id===s.groupId);
+    const col = g?.color || "#4ADE80";
+    const isDone = !!(checklist[dateKey]?.[s.id]);
+    const typeIcon = s.type==="water"?"💧":"🧪";
+    const product  = s.product ? ` · ${s.product}` : "";
+
+    let checkEl, nameStyle, clickable;
+    if(isFuture) {
+      checkEl   = `<div class="cal-task-check future-check" style="border:2px solid var(--border2);color:var(--muted2)">·</div>`;
+      nameStyle = `color:var(--muted)`;
+      clickable = "";
+    } else if(isDone) {
+      checkEl   = `<div class="cal-task-check done-check" style="background:${col}">✓</div>`;
+      nameStyle = `color:var(--text)`;
+      clickable = `onclick="calToggleCheck('${s.id}','${dateKey}')" style="cursor:pointer"`;
+    } else {
+      checkEl   = `<div class="cal-task-check" style="border:2px solid var(--border2);color:var(--muted2)"></div>`;
+      nameStyle = `color:var(--muted)`;
+      clickable = `onclick="calToggleCheck('${s.id}','${dateKey}')" style="cursor:pointer"`;
+    }
+
+    taskRows += `<div class="cal-task-row" ${clickable}>
+      ${checkEl}
+      <div style="flex:1">
+        <div class="cal-task-name" style="${nameStyle}">${g?.name || "Grupo"}</div>
+        <div class="cal-task-sub">${typeIcon} ${s.type==="water"?"Rega":"Defensivo"}${product}</div>
+      </div>
+      ${!isFuture ? `<div style="font-size:11px;color:var(--muted);font-family:sans-serif">${isDone?"feito":"marcar"}</div>` : ""}
+    </div>`;
+  });
+
+  const done  = tasks.filter(s => checklist[dateKey]?.[s.id]).length;
+  const label = isFuture ? statusLabels.future
+    : status === "done"    ? statusLabels.done
+    : status === "partial" ? `${done}/${tasks.length} feito${done!==1?"s":""}`
+    : status === "missed"  ? statusLabels.missed
+    : statusLabels.empty;
+
+  const hint = !isFuture ? `<div style="font-size:11px;color:var(--muted);font-family:sans-serif;margin-top:10px;padding-top:10px;border-top:1px solid var(--bg3)">Toque em uma tarefa para marcar ou desmarcar</div>` : "";
+
+  return `<div class="cal-detail">
+    <div class="cal-detail-header">
+      <div class="cal-detail-date">${dateLabel}</div>
+      <span class="cal-detail-status ${statusClass[status]||"empty"}">${label}</span>
+    </div>
+    ${taskRows}
+    ${hint}
+  </div>`;
+}
+
+function calSelectDate(dateKey) {
+  calSelectedDate = dateKey;
+  renderCalendario();
+}
+
+function calChangeMonth(delta) {
+  calMonthOffset += delta;
+  renderCalendario();
+}
+
+// ── NAV ────────────────────────────────────────────────────────
+let currentView = "hoje";
+function switchView(v) {
+  currentView = v;
+  document.querySelectorAll(".view").forEach(el=>el.classList.remove("active"));
+  document.querySelectorAll(".nav-btn").forEach(el=>el.classList.remove("active"));
+  document.getElementById("view-"+v).classList.add("active");
+  document.querySelector(`[data-view="${v}"]`).classList.add("active");
+  render();
+}
+function render() {
+  if(currentView==="hoje")       renderHoje();
+  if(currentView==="grupos")     renderGrupos();
+  if(currentView==="agenda")     renderAgenda();
+  if(currentView==="pragas")     renderPragas();
+  if(currentView==="historico")  renderHistorico();
+  if(currentView==="calendario") renderCalendario();
+}
+
+// ── DRAWER ─────────────────────────────────────────────────────
+function openDrawer() { document.getElementById("drawer").classList.add("open"); document.getElementById("drawer-overlay").classList.add("open"); }
+function closeDrawer() { document.getElementById("drawer").classList.remove("open"); document.getElementById("drawer-overlay").classList.remove("open"); }
+
+// ── MODAL HELPERS ──────────────────────────────────────────────
+function openModal(id)  { document.getElementById(id).classList.add("open"); }
+function closeModal(id) { document.getElementById(id).classList.remove("open"); }
+function showToast(msg) {
+  const t = document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"), 2500);
+}
+
+function buildEmojiGrid(containerId, options, current, onPick) {
+  document.getElementById(containerId).innerHTML = options.map(e =>
+    `<div class="emoji-opt${e===current?" selected":""}" onclick="${onPick}('${e}')">${e}</div>`
+  ).join("");
+}
+
+function buildColorGrid(containerId, current) {
+  document.getElementById(containerId).innerHTML = GROUP_COLORS.map(c =>
+    `<div class="color-opt${c===current?" selected":""}" onclick="pickGroupColor('${c}')" style="background:${c}"></div>`
+  ).join("");
+}
+
+// ── GROUP MODAL ────────────────────────────────────────────────
+let editingGroupId = null, selectedGroupColor = "#4ADE80";
+
+function openAddGroup() {
+  editingGroupId = null; selectedGroupColor = "#4ADE80";
+  document.getElementById("mg-name").value = "";
+  document.getElementById("mg-title").textContent = "Novo grupo";
+  buildColorGrid("mg-colors", selectedGroupColor);
+  openModal("modal-group");
+}
+function openEditGroup(id) {
+  const g = groups.find(x=>x.id===id); if(!g) return;
+  editingGroupId = id; selectedGroupColor = g.color;
+  document.getElementById("mg-name").value = g.name;
+  document.getElementById("mg-title").textContent = "Editar grupo";
+  buildColorGrid("mg-colors", selectedGroupColor);
+  openModal("modal-group");
+}
+function pickGroupColor(c) {
+  selectedGroupColor = c;
+  document.querySelectorAll("#mg-colors .color-opt").forEach(el => el.classList.toggle("selected", el.style.background===c||el.style.backgroundColor===c));
+}
+function saveGroup() {
+  const name = document.getElementById("mg-name").value.trim();
+  if(!name) { showToast("Digite um nome"); return; }
+  if(editingGroupId) {
+    const g = groups.find(x=>x.id===editingGroupId);
+    if(g) { g.name=name; g.color=selectedGroupColor; }
+    showToast("Grupo atualizado ✓");
+  } else {
+    groups.push({ id:"g_"+Date.now(), name, color:selectedGroupColor });
+    showToast("Grupo criado ✓");
+  }
+  saveAll(); closeModal("modal-group"); render();
+}
+
+// ── PLANT MODAL ────────────────────────────────────────────────
+let editingPlantId = null, plantGroupId = null, selectedPlantEmoji = "🌿";
+window._pickPlantEmoji = function(e) {
+  selectedPlantEmoji = e;
+  document.querySelectorAll("#mp-emoji .emoji-opt").forEach(el=>el.classList.toggle("selected",el.textContent===e));
+};
+function openAddPlant(groupId) {
+  editingPlantId = null; plantGroupId = groupId; selectedPlantEmoji = "🌿";
+  const g = groups.find(x=>x.id===groupId);
+  document.getElementById("mp-name").value = "";
+  document.getElementById("mp-title").textContent = "Nova planta";
+  document.getElementById("mp-sub").textContent = g ? `Adicionar ao grupo: ${g.name}` : "";
+  document.getElementById("mp-delete-btn").style.display = "none";
+  buildEmojiGrid("mp-emoji", PLANT_EMOJIS, selectedPlantEmoji, "_pickPlantEmoji");
+  openModal("modal-plant");
+}
+function openEditPlant(id) {
+  const p = plants.find(x=>x.id===id); if(!p) return;
+  editingPlantId = id; plantGroupId = p.groupId; selectedPlantEmoji = p.icon;
+  document.getElementById("mp-name").value = p.name;
+  document.getElementById("mp-title").textContent = "Editar planta";
+  document.getElementById("mp-sub").textContent = "";
+  document.getElementById("mp-delete-btn").style.display = "block";
+  buildEmojiGrid("mp-emoji", PLANT_EMOJIS, selectedPlantEmoji, "_pickPlantEmoji");
+  openModal("modal-plant");
+}
+function savePlant() {
+  const name = document.getElementById("mp-name").value.trim();
+  if(!name) { showToast("Digite o nome da planta"); return; }
+  if(editingPlantId) {
+    const p = plants.find(x=>x.id===editingPlantId);
+    if(p) { p.name=name; p.icon=selectedPlantEmoji; }
+    showToast("Planta atualizada ✓");
+  } else {
+    plants.push({ id:"p_"+Date.now(), groupId:plantGroupId, name, icon:selectedPlantEmoji });
+    showToast("Planta adicionada ✓");
+  }
+  saveAll(); closeModal("modal-plant"); render();
+}
+function deletePlant() {
+  if(!editingPlantId) return;
+  plants = plants.filter(p=>p.id!==editingPlantId);
+  saveAll(); closeModal("modal-plant"); showToast("Planta removida"); render();
+}
+
+// ── SCHEDULE MODAL ─────────────────────────────────────────────
+let editingScheduleId = null;
+
+function scheduleTypeChange() {
+  const type = document.getElementById("ms-type").value;
+  document.getElementById("ms-product-wrap").style.display = type==="defense"?"block":"none";
+}
+
+function updateIntervalHint() {
+  const v = parseInt(document.getElementById("ms-interval").value) || 1;
+  const hints = { 1:"semana(s) — toda semana", 2:"semanas — quinzenal", 3:"semanas — a cada 3 semanas", 4:"semanas — mensal" };
+  document.getElementById("ms-interval-hint").textContent = `semana${v>1?"s":""} — ${v===1?"toda semana":v===2?"quinzenal":v===4?"mensal":`a cada ${v} semanas`}`;
+}
+
+function toggleDay(btn) { btn.classList.toggle("active"); }
+
+function getSelectedDays() {
+  return Array.from(document.querySelectorAll("#ms-weekdays .wdp-btn.active")).map(b=>parseInt(b.dataset.day));
+}
+
+function populateGroupSelect(selectedId) {
+  document.getElementById("ms-group").innerHTML = groups.map(g=>
+    `<option value="${g.id}"${g.id===selectedId?" selected":""}>${g.name}</option>`
+  ).join("");
+}
+
+function openAddSchedule() {
+  editingScheduleId = null;
+  populateGroupSelect(groups[0]?.id);
+  document.getElementById("ms-type").value = "water";
+  document.getElementById("ms-product").value = "";
+  document.getElementById("ms-interval").value = "1";
+  document.querySelectorAll("#ms-weekdays .wdp-btn").forEach(b=>b.classList.remove("active"));
+  document.getElementById("ms-title").textContent = "Nova agenda";
+  document.getElementById("ms-delete-btn").style.display = "none";
+  scheduleTypeChange(); updateIntervalHint();
+  document.getElementById("ms-interval").oninput = updateIntervalHint;
+  openModal("modal-schedule");
+}
+
+function openEditSchedule(id) {
+  const s = schedules.find(x=>x.id===id); if(!s) return;
+  editingScheduleId = id;
+  populateGroupSelect(s.groupId);
+  document.getElementById("ms-type").value = s.type;
+  document.getElementById("ms-product").value = s.product||"";
+  document.getElementById("ms-interval").value = s.interval||1;
+  document.querySelectorAll("#ms-weekdays .wdp-btn").forEach(b=>b.classList.toggle("active", s.days.includes(parseInt(b.dataset.day))));
+  document.getElementById("ms-title").textContent = "Editar agenda";
+  document.getElementById("ms-delete-btn").style.display = "block";
+  scheduleTypeChange(); updateIntervalHint();
+  document.getElementById("ms-interval").oninput = updateIntervalHint;
+  openModal("modal-schedule");
+}
+
+function saveSchedule() {
+  const groupId  = document.getElementById("ms-group").value;
+  const type     = document.getElementById("ms-type").value;
+  const product  = document.getElementById("ms-product").value.trim();
+  const days     = getSelectedDays();
+  const interval = parseInt(document.getElementById("ms-interval").value)||1;
+  if(!days.length) { showToast("Selecione ao menos um dia da semana"); return; }
+  if(editingScheduleId) {
+    const s = schedules.find(x=>x.id===editingScheduleId);
+    if(s) Object.assign(s, {groupId, type, product, freqType:"weekly", days, interval});
+    showToast("Agenda atualizada ✓");
+  } else {
+    schedules.push({
+      id: "s_"+Date.now(),
+      groupId, type, product,
+      freqType: "weekly", days, interval,
+      startDate: todayKey(), // cycle starts today
+    });
+    showToast("Agenda criada ✓");
+  }
+  saveAll(); closeModal("modal-schedule"); render();
+}
+function deleteSchedule() {
+  schedules = schedules.filter(s=>s.id!==editingScheduleId);
+  saveAll(); closeModal("modal-schedule"); showToast("Agenda removida"); render();
+}
+
+// ── PEST MODAL ─────────────────────────────────────────────────
+let editingPestId = null, selectedPestEmoji = "🐛";
+window._pickPestEmoji = function(e) {
+  selectedPestEmoji = e;
+  document.querySelectorAll("#mpe-emoji .emoji-opt").forEach(el=>el.classList.toggle("selected",el.textContent===e));
+};
+function openAddPest() {
+  editingPestId = null; selectedPestEmoji = "🐛";
+  document.getElementById("mpe-name").value = "";
+  document.getElementById("mpe-symptom").value = "";
+  document.getElementById("mpe-recipe").value = "";
+  document.getElementById("mpe-plants").value = "";
+  document.getElementById("mpe-title").textContent = "Nova praga / doença";
+  document.getElementById("mpe-delete-btn").style.display = "none";
+  buildEmojiGrid("mpe-emoji", PEST_EMOJIS, selectedPestEmoji, "_pickPestEmoji");
+  openModal("modal-pest");
+}
+function openEditPest(id) {
+  const p = pests.find(x=>x.id===id); if(!p) return;
+  editingPestId = id; selectedPestEmoji = p.icon;
+  document.getElementById("mpe-name").value = p.name;
+  document.getElementById("mpe-symptom").value = p.symptom||"";
+  document.getElementById("mpe-recipe").value = p.recipe||"";
+  document.getElementById("mpe-plants").value = p.plants||"";
+  document.getElementById("mpe-title").textContent = "Editar praga";
+  document.getElementById("mpe-delete-btn").style.display = "block";
+  buildEmojiGrid("mpe-emoji", PEST_EMOJIS, selectedPestEmoji, "_pickPestEmoji");
+  openModal("modal-pest");
+}
+function savePest() {
+  const name = document.getElementById("mpe-name").value.trim();
+  if(!name) { showToast("Digite o nome"); return; }
+  const obj = { name, icon:selectedPestEmoji, symptom:document.getElementById("mpe-symptom").value.trim(), recipe:document.getElementById("mpe-recipe").value.trim(), plants:document.getElementById("mpe-plants").value.trim() };
+  if(editingPestId) {
+    const p = pests.find(x=>x.id===editingPestId);
+    if(p) Object.assign(p, obj);
+    showToast("Praga atualizada ✓");
+  } else {
+    pests.push({ id:"pe_"+Date.now(), ...obj });
+    showToast("Praga cadastrada ✓");
+  }
+  saveAll(); closeModal("modal-pest"); render();
+}
+function askDeletePest(id) {
+  editingPestId = id; openEditPest(id);
+}
+function deletePest() {
+  pests = pests.filter(p=>p.id!==editingPestId);
+  saveAll(); closeModal("modal-pest"); showToast("Removido"); render();
+}
+
+// ── BACKUP ─────────────────────────────────────────────────────
+function exportData() {
+  const payload = { groups, plants, schedules, pests, checklist, history };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href=url; a.download="jardim-backup.json"; a.click();
+  URL.revokeObjectURL(url); showToast("Backup exportado ✓");
+}
+function importData() {
+  const input = document.createElement("input"); input.type="file"; input.accept=".json";
+  input.onchange = e => {
+    const file = e.target.files[0]; if(!file) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      try {
+        const d = JSON.parse(ev.target.result);
+        groups=d.groups||[]; plants=d.plants||[]; schedules=d.schedules||[];
+        pests=d.pests||[]; checklist=d.checklist||{}; history=d.history||[];
+        saveAll(); render(); showToast("Dados importados ✓");
+      } catch { showToast("Arquivo inválido"); }
+    };
+    r.readAsText(file);
+  };
+  input.click();
+}
+
+// ── INIT ───────────────────────────────────────────────────────
+loadAll();
+render();
+</script>
+</body>
+</html>
